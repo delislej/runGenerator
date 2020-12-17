@@ -6,7 +6,6 @@ import haversine from 'haversine'
 
 export async function getRoute (long, lat, length, round, seed) {
   var postData = { coordinates: [[long, lat]], options: { round_trip: { length: length, points: round, seed: seed } }, elevation: false, units: 'mi', geometry: true }
-  console.log(postData)
   const axiosConfig = {
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
@@ -17,7 +16,8 @@ export async function getRoute (long, lat, length, round, seed) {
   const response = await axios.post('http://71.202.1.245:8080/ors/v2/directions/foot-walking', postData, axiosConfig)
     .then((res) => {
       //if we successfully get a route, decode its polyline and return it
-      return decodePoly(res.data.routes[0].geometry, false);
+      //console.log(res.data.routes[0].segments[0].distance)
+      return res.data.routes[0];
     })
     .catch((err) => {
       console.log('AXIOS ERROR: ', err)
