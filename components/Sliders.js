@@ -42,11 +42,11 @@ export default function Sliders(props) {
             mode='contained'
             onPress={async () => {
               
-              let max = distance+distance*tolerance/100
+              let max = distance+distance*(tolerance/100)
               let route = await getRoute( location.coords.longitude, location.coords.latitude, distance*1000, 20, Math.trunc(1 + Math.random() * (100000 - 1)))
               let saved = null;
               let savedDistance = Number.MAX_SAFE_INTEGER;
-              for(let i = 0; i < 5; i++){
+              for(let i = 0; i < 20; i++){
                 if(route.segments[0].distance <= max && route.segments[0].distance >= distance){
                   saved = route
                   break
@@ -62,7 +62,7 @@ export default function Sliders(props) {
                 route = await getRoute( location.coords.longitude, location.coords.latitude, distance*1000, 20, Math.trunc(1 + Math.random() * (100000 - 1)))
               }
               
-              props.onChange(decodePoly(saved.geometry, false))
+              props.onChange(decodePoly(saved.geometry, false), saved.segments[0].distance)
             }}
             title="Find Route"
           >
