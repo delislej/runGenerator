@@ -2,54 +2,95 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import * as Location from 'expo-location';
-import { StyleSheet, Text, View, Dimensions, Button} from 'react-native';
-import MapView, {Polyline} from 'react-native-maps';
+import { StyleSheet, Text, View, Dimensions, Button,  ScrollView} from 'react-native';
+import MapView, {Polyline, Marker} from 'react-native-maps';
 import Sliders from '../Sliders'
+import {calcDistance, decodePoly} from '../../Utils/Route'
+import {storeHistory, getHistory} from '../../Utils/dataManagement'
 import * as Permissions from 'expo-permissions';
 import * as TaskManager from 'expo-task-manager';
+
 const LOCATION_TRACKING = 'location-tracking';
+
 
 
 export default function HomeScreen() {
 
   const [route, setRoute] = useState([]);
+  const [history, setHistory] = useState([])
   const [userRoute, setUserRoute] = useState([]);
   const [location, setLocation] = useState(null);
+  const [distanceTravelled, setDistanceTravelled] = useState(0);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [distance, setDistance] = useState("waiting...");
+  const [accuracy, setAccuracy] = useState(0)
+  const [distance, setDistance] = useState(0);
+  const [trackingState, setTrackingState] = useState('stopped')
+  
 
-
+    //console.log(rawData)
 
   function handleRouteChange(newRoute, routeDistance) {
     setRoute(newRoute);
+    //console.log(route)
     setDistance(routeDistance);
   }
 
+  function saveRoute() {
+    let temp = history;
+    temp.push(route);
+    //console.log(temp)
+    storeHistory(temp);
+    setHistory(temp);
+  }
+
+  function clearHistory() {
+    storeHistory([]);
+    setHistory([]);
+  }
+
+
+
   const startLocationTracking = async () => {
-    await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
-      accuracy: Location.Accuracy.Highest,
+    await Location.startLocationUpdatesAsync(LOCATION_TRACKING,{
+      accuracy: Location.Accuracy.BestForNavigation,
       timeInterval: 500,
       distanceInterval: 0,
+      showsBackgroundLocationIndicator: true,
+        foregroundService: {
+          notificationTitle: 'Run Generator',
+          notificationColor: '#0EE',
+        },
     });
     const hasStarted = await Location.hasStartedLocationUpdatesAsync(
       LOCATION_TRACKING
     );
     console.log('tracking started?', hasStarted);
+    setTrackingState('started')
   };
 
   const stopLocationTracking = async () => {
+    if(trackingState != 'paused'){
     Location.stopLocationUpdatesAsync(LOCATION_TRACKING);
     setUserRoute([]);
+    setTrackingState('stopped')
+  }
+  else{
+    setTrackingState('stopped')
+  }
   };
 
   const pauseLocationTracking = async () => {
     Location.stopLocationUpdatesAsync(LOCATION_TRACKING);
+    setTrackingState('paused')
   };
 
   
 
   useEffect(() => {
     (async () => {
+      let lines = []
+      lines = await getHistory()
+      setHistory(lines)
       let { status } = await Location.requestPermissionsAsync();
     Permissions.askAsync(Permissions.LOCATION)
       if (status !== 'granted') {
@@ -64,10 +105,6 @@ export default function HomeScreen() {
     })();
   }, []);
 
-  let text = 'Waiting..';
-  if (location) {
-    text = location;
-  }
   
   TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
     if (error) {
@@ -76,28 +113,56 @@ export default function HomeScreen() {
     }
     if (data) {
       const { locations } = data;
-      let newCoordinate = null;
       let ur = userRoute;
       for(let i = 0; i < locations.length; i++){
-        let latitude = locations[i].coords.latitude;
+        setAccuracy(locations[i].coords.accuracy)
+        if(locations[i].coords.accuracy > 10 || locations[i].coords.speed < .333){
+            continue;
+        }
         let longitude = locations[i].coords.longitude;
+        let latitude = locations[i].coords.latitude;
         newCoordinate = {
             latitude,
             longitude
           }
-        ur = ur.concat([newCoordinate])
+          if(ur.length > 1){
+          setDistanceTravelled(distanceTravelled + calcDistance(newCoordinate, ur[ur.length-1]));
+        }
+        ur.push([newCoordinate])
       }
       setUserRoute(ur);
     }
   });
 
+  let stoppedButtons = <Button title="Start tracking" onPress={startLocationTracking} />
+  let pausedButtons = [<Button title="Resume tracking" onPress={startLocationTracking} key={0}/>,<Button title="Stop tracking" onPress={stopLocationTracking} key={1}/>];
+  let startedButtons = <Button title="pause tracking" onPress={pauseLocationTracking} />
+
+  function renderSwitch(trackingState) {
+    switch(trackingState) {
+      case 'stopped':
+        return stoppedButtons;
+      case 'started':
+        return startedButtons;
+      case 'paused':
+        return pausedButtons;
+      default:
+        return stoppedButtons;
+    }
+  }
+  
+  if(userRoute.length > 0) {
+      marker = <Marker
+      coordinate={{ latitude: userRoute[userRoute.length-1].latitude , longitude: userRoute[userRoute.length-1].longitude }}
+    />
+  }
+
   return (
     <View style={styles.container}>
-     
-
       <View >
       <MapView style={styles.mapStyle}
       showsUserLocation
+      followsUserLocation
     initialRegion={{
       latitude: 37.435120,
       longitude: -122.200420,
@@ -105,21 +170,22 @@ export default function HomeScreen() {
       longitudeDelta: 0.0421,
     }}>
       
- <Polyline coordinates={route} strokeColor='#0cf' strokeWidth={5} lineDashPattern={[3, 3]} />
- <Polyline coordinates={userRoute} strokeColor='#0cf' strokeWidth={5} />
+ <Polyline coordinates={decodePoly(route)} strokeColor='#0cf' strokeWidth={5} lineDashPattern={[3, 3]} />
+ <Polyline coordinates={userRoute} strokeColor='#000' strokeWidth={5} />
   </MapView>
 <Sliders position={location} onChange={handleRouteChange}/>
 
-<Button title="Start tracking" onPress={startLocationTracking} />
-<Button title="pause tracking" onPress={pauseLocationTracking} />
-<Button title="Stop tracking" onPress={stopLocationTracking} />
-         
-
+{renderSwitch(trackingState)}
+<Button title="Save Route" onPress={saveRoute} />
+<Button
+        title="Clear History"
+        onPress={() => clearHistory()}
+      />
       </View>
-      
-          <Text>{distance}</Text>
-          <Text>{JSON.stringify(userRoute)}</Text>
-      
+      <Text>Route length: {distance.toFixed(2)} mi</Text>
+      <Text>Current Accuracy: {accuracy.toFixed(1)}</Text>
+      <Text>Distance traveled: {distanceTravelled.toFixed(2)}</Text>
+    
     </View>
   );
 }

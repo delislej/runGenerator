@@ -7,7 +7,8 @@ import {getRoute, decodePoly} from '../Utils/Route'
 
 export default function Sliders(props) {
   const [distance, setDistance] = useState(1);
-  const [tolerance, setTolerance] = useState(1);
+  const [tolerance, setTolerance] = useState(5);
+
   let location = props.position
   return (
       <View>
@@ -62,7 +63,7 @@ export default function Sliders(props) {
                 route = await getRoute( location.coords.longitude, location.coords.latitude, distance*1000, 20, Math.trunc(1 + Math.random() * (100000 - 1)))
               }
               
-              props.onChange(decodePoly(saved.geometry, false), saved.segments[0].distance)
+              props.onChange(saved.geometry, saved.segments[0].distance)
             }}
             title="Find Route"
           >
