@@ -2,21 +2,26 @@
 import React from 'react';
 import HomeScreen from './components/screens/HomeScreen'
 import HistoryScreen from './components/screens/HistoryScreen'
-import { Text, View } from 'react-native';
+import Store from './context/Store'
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
+import { useState } from 'react';
 export default function App() {
 
   const Tab = createBottomTabNavigator();
-  const Stack = createStackNavigator();
+  const [route, updateRoute] = useState([])
+    function update(route) {
+        updateRoute(route)
+    }
   return (
+    <Store>
     <NavigationContainer>
     <Tab.Navigator>
     <Tab.Screen name="home" component={HomeScreen} />
     <Tab.Screen name="history" component={HistoryScreen} />
     </Tab.Navigator>
   </NavigationContainer>
+  </Store>
     
     
   );

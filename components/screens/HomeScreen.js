@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { StyleSheet, Text, View, Dimensions, Button,  ScrollView} from 'react-native';
 import MapView, {Polyline, Marker} from 'react-native-maps';
@@ -9,12 +10,14 @@ import {calcDistance, decodePoly} from '../../Utils/Route'
 import {storeHistory, getHistory} from '../../Utils/dataManagement'
 import * as Permissions from 'expo-permissions';
 import * as TaskManager from 'expo-task-manager';
+import {Context} from '../../context/Store'
+
 
 const LOCATION_TRACKING = 'location-tracking';
 
 
 
-export default function HomeScreen() {
+export default function HomeScreen(props) {
 
   const [route, setRoute] = useState([]);
   const [history, setHistory] = useState([])
@@ -25,30 +28,43 @@ export default function HomeScreen() {
   const [accuracy, setAccuracy] = useState(0)
   const [distance, setDistance] = useState(0);
   const [trackingState, setTrackingState] = useState('stopped')
+  const [state, dispatch] = useContext(Context);
   
 
-    //console.log(rawData)
-
   function handleRouteChange(newRoute, routeDistance) {
-    setRoute(newRoute);
+    console.log("changed route to " + newRoute)
+    dispatch({type: 'SELECT_ROUTE', payload: newRoute});
+    console.log(state.currentRoute)
     //console.log(route)
     setDistance(routeDistance);
   }
 
   function saveRoute() {
-    let temp = history;
-    temp.push(route);
+    console.log("saving current route")
+    if(state.currentRoute === ''){
+      console.log("empty route")
+      return;
+    }
+    dispatch({type: 'ADD_ROUTE', payload: state.currentRoute});
+    console.log(state.routes)
     //console.log(temp)
-    storeHistory(temp);
-    setHistory(temp);
   }
 
   function clearHistory() {
-    storeHistory([]);
-    setHistory([]);
+    dispatch({type: 'CLEAR_ROUTE', payload: null});
   }
 
+  function getCurrentRoute() {
+    ///console.log(state.currentRoute)
+    if(state.currentRoute === ''){
+      return [];
+    }
+    else{
+      return decodePoly(state.currentRoute)
+    }
+  }
 
+  
 
   const startLocationTracking = async () => {
     await Location.startLocationUpdatesAsync(LOCATION_TRACKING,{
@@ -84,13 +100,16 @@ export default function HomeScreen() {
     setTrackingState('paused')
   };
 
-  
+
 
   useEffect(() => {
+
+    
     (async () => {
       let lines = []
       lines = await getHistory()
-      setHistory(lines)
+      dispatch({type: 'SET_ROUTES', payload: lines});
+      
       let { status } = await Location.requestPermissionsAsync();
     Permissions.askAsync(Permissions.LOCATION)
       if (status !== 'granted') {
@@ -102,7 +121,9 @@ export default function HomeScreen() {
       
       setLocation(location);
       
-    })();
+    })
+    
+    ();
   }, []);
 
   
@@ -137,6 +158,7 @@ export default function HomeScreen() {
   let stoppedButtons = <Button title="Start tracking" onPress={startLocationTracking} />
   let pausedButtons = [<Button title="Resume tracking" onPress={startLocationTracking} key={0}/>,<Button title="Stop tracking" onPress={stopLocationTracking} key={1}/>];
   let startedButtons = <Button title="pause tracking" onPress={pauseLocationTracking} />
+  
 
   function renderSwitch(trackingState) {
     switch(trackingState) {
@@ -151,11 +173,8 @@ export default function HomeScreen() {
     }
   }
   
-  if(userRoute.length > 0) {
-      marker = <Marker
-      coordinate={{ latitude: userRoute[userRoute.length-1].latitude , longitude: userRoute[userRoute.length-1].longitude }}
-    />
-  }
+  
+
 
   return (
     <View style={styles.container}>
@@ -170,7 +189,7 @@ export default function HomeScreen() {
       longitudeDelta: 0.0421,
     }}>
       
- <Polyline coordinates={decodePoly(route)} strokeColor='#0cf' strokeWidth={5} lineDashPattern={[3, 3]} />
+ <Polyline coordinates={getCurrentRoute()} strokeColor='#0cf' strokeWidth={5} lineDashPattern={[3, 3]} />
  <Polyline coordinates={userRoute} strokeColor='#000' strokeWidth={5} />
   </MapView>
 <Sliders position={location} onChange={handleRouteChange}/>

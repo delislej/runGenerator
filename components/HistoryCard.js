@@ -1,38 +1,32 @@
-import React, { Component } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card } from 'react-native-paper'
 import { StyleSheet, Text, Dimensions, TouchableOpacity } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
 import { decodePoly } from '../Utils/Route'
 
-const AppButton = ({ onPress, title }) => (
-  <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
-    <Text style={styles.appButtonText}>{title}</Text>
-  </TouchableOpacity>
-);
 
-class HistoryCard extends Component {
-  state = { line: [] }
-  componentDidMount () {
-    const poly = decodePoly(this.props.line, false)
-    this.setState({ line: poly })
-  }
 
+export default function HistoryCard(props) {
+
+console.log(props)
   
-
-  render () {
     return (
 
       <Card style={styles.card}>
 
         
-            <MapView
-              style={styles.mapStyle} ref={(ref) => { this.mapRef = ref }} onMapReady={() => {
-                this.mapRef.fitToCoordinates(this.state.line, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: false })
-              }}
-            >
+<MapView style={styles.mapStyle}
+      showsUserLocation
+      followsUserLocation
+    initialRegion={{
+      latitude: 37.435120,
+      longitude: -122.200420,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    }}>
 
               <Polyline
-                coordinates={this.state.line}
+                coordinates={decodePoly(props.line, false)}
                 strokeColor='#000' // fallback for when `strokeColors` is not supported by the map-provider
                 strokeColors={[
                   '#7F0000',
@@ -45,13 +39,21 @@ class HistoryCard extends Component {
                 strokeWidth={6}
               />
             </MapView>
-            <AppButton title="Select Route"/>
-            <AppButton title="Delete Route"/>
+            
+
+            <TouchableOpacity onPress={()=>{props.test('select', props.id, props.line)}} style={styles.appButtonContainer}>
+            <Text style={styles.appButtonText}>select</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={()=>{props.test('delete', props.id, props.line)}} style={styles.appButtonContainer}>
+            <Text style={styles.appButtonText}>delete</Text>
+            </TouchableOpacity>
+            
       </Card>
 
     )
   }
-}
+
 const styles = StyleSheet.create({
   mapStyle: {
     paddingTop: 10,
@@ -91,4 +93,3 @@ const styles = StyleSheet.create({
 
 })
 
-export default HistoryCard
