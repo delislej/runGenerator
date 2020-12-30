@@ -1,17 +1,14 @@
 
 import React from 'react';
 
-import { StyleSheet, Text, View, Dimensions, Button, ScrollView} from 'react-native';
+import {ScrollView, Text} from 'react-native';
 import {Context} from '../../context/Store'
-import { useState, useEffect, useContext } from 'react';
+import { useContext } from 'react';
 import HistoryCard from '../HistoryCard';
 
 
 
 export default function HistoryScreen({navigation}) {
-
-  
-  const [cards, setCards] = useState([])
   const [state, dispatch] = useContext(Context);
   async function cardButtonHandler(task, id, line){
     switch(task) {
@@ -28,25 +25,17 @@ export default function HistoryScreen({navigation}) {
   
 
   function makeCards() {
+
     let arr = state.routes;
+    if(arr.length < 1){
+      return <Text>No History</Text>
+    }
     let temp = []
-    console.log("updating cards")
     for(let i = 0; i < arr.length; i++){
       temp.push(<HistoryCard line={arr[i] } key={i} id={i} distance={0} test={cardButtonHandler}/>)
     }
-    if(temp == cards){
-      console.log("no change")
-    }
     return temp
   }
-  
-      
-   
-
-  
-  
-
-  
 
   return (
         <ScrollView>

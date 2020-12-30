@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import React from 'react';
 import { StyleSheet, Text, View, Dimensions, Button } from 'react-native';
-import Slider from 'react-native-slider';
-import {getRoute, decodePoly} from '../Utils/Route'
+import Slider from '@react-native-community/slider';
+import {getRoute} from '../Utils/Route'
 
 
 export default function Sliders(props) {

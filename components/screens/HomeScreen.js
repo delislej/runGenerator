@@ -18,9 +18,6 @@ const LOCATION_TRACKING = 'location-tracking';
 
 
 export default function HomeScreen(props) {
-
-  const [route, setRoute] = useState([]);
-  const [history, setHistory] = useState([])
   const [userRoute, setUserRoute] = useState([]);
   const [location, setLocation] = useState(null);
   const [distanceTravelled, setDistanceTravelled] = useState(0);
@@ -32,30 +29,19 @@ export default function HomeScreen(props) {
   
 
   function handleRouteChange(newRoute, routeDistance) {
-    console.log("changed route to " + newRoute)
     dispatch({type: 'SELECT_ROUTE', payload: newRoute});
-    console.log(state.currentRoute)
-    //console.log(route)
     setDistance(routeDistance);
   }
 
   function saveRoute() {
-    console.log("saving current route")
     if(state.currentRoute === ''){
-      console.log("empty route")
       return;
     }
     dispatch({type: 'ADD_ROUTE', payload: state.currentRoute});
-    console.log(state.routes)
-    //console.log(temp)
   }
 
-  function clearHistory() {
-    dispatch({type: 'CLEAR_ROUTE', payload: null});
-  }
 
   function getCurrentRoute() {
-    ///console.log(state.currentRoute)
     if(state.currentRoute === ''){
       return [];
     }
@@ -63,8 +49,6 @@ export default function HomeScreen(props) {
       return decodePoly(state.currentRoute)
     }
   }
-
-  
 
   const startLocationTracking = async () => {
     await Location.startLocationUpdatesAsync(LOCATION_TRACKING,{
@@ -80,7 +64,6 @@ export default function HomeScreen(props) {
     const hasStarted = await Location.hasStartedLocationUpdatesAsync(
       LOCATION_TRACKING
     );
-    console.log('tracking started?', hasStarted);
     setTrackingState('started')
   };
 
@@ -100,33 +83,24 @@ export default function HomeScreen(props) {
     setTrackingState('paused')
   };
 
-
-
   useEffect(() => {
-
-    
     (async () => {
       let lines = []
       lines = await getHistory()
       dispatch({type: 'SET_ROUTES', payload: lines});
-      
       let { status } = await Location.requestPermissionsAsync();
     Permissions.askAsync(Permissions.LOCATION)
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
         return;
       }
-      
       let location = await Location.getCurrentPositionAsync({});
-      
       setLocation(location);
-      
     })
     
     ();
   }, []);
 
-  
   TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
     if (error) {
       console.log('LOCATION_TRACKING task ERROR:', error);
@@ -136,6 +110,7 @@ export default function HomeScreen(props) {
       const { locations } = data;
       let ur = userRoute;
       for(let i = 0; i < locations.length; i++){
+          //console.log(locations[i])
         setAccuracy(locations[i].coords.accuracy)
         if(locations[i].coords.accuracy > 10 || locations[i].coords.speed < .333){
             continue;
@@ -149,7 +124,7 @@ export default function HomeScreen(props) {
           if(ur.length > 1){
           setDistanceTravelled(distanceTravelled + calcDistance(newCoordinate, ur[ur.length-1]));
         }
-        ur.push([newCoordinate])
+        ur = ur.concat([newCoordinate])
       }
       setUserRoute(ur);
     }
@@ -198,7 +173,7 @@ export default function HomeScreen(props) {
 <Button title="Save Route" onPress={saveRoute} />
 <Button
         title="Clear History"
-        onPress={() => clearHistory()}
+        onPress={() => {dispatch({type: 'CLEAR_ROUTES', payload: []});}}
       />
       </View>
       <Text>Route length: {distance.toFixed(2)} mi</Text>

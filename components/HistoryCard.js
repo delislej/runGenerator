@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Card } from 'react-native-paper'
 import { StyleSheet, Text, Dimensions, TouchableOpacity } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
@@ -7,8 +7,6 @@ import { decodePoly } from '../Utils/Route'
 
 
 export default function HistoryCard(props) {
-
-console.log(props)
   
     return (
 
