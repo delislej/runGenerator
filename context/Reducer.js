@@ -23,7 +23,6 @@ const Reducer = (state, action) => {
             return {
                     ...state,
                     routes: state.routes.filter(route => route !== action.payload)
-                    
                 };
         case 'CLEAR_ROUTES':
             storeHistory([])

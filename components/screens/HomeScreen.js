@@ -1,13 +1,12 @@
 
 import React from 'react';
 import { useState, useEffect, useContext } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { StyleSheet, Text, View, Dimensions, Button,  ScrollView} from 'react-native';
 import MapView, {Polyline, Marker} from 'react-native-maps';
 import Sliders from '../Sliders'
 import {calcDistance, decodePoly} from '../../Utils/Route'
-import {storeHistory, getHistory} from '../../Utils/dataManagement'
+import {getHistory} from '../../Utils/dataManagement'
 import * as Permissions from 'expo-permissions';
 import * as TaskManager from 'expo-task-manager';
 import {Context} from '../../context/Store'
@@ -83,6 +82,41 @@ export default function HomeScreen(props) {
     setTrackingState('paused')
   };
 
+  function getMap(loc) {
+    if(loc !== null){
+      return [<MapView key={0} style={styles.mapStyle}
+      showsUserLocation
+      followsUserLocation={true}
+    initialRegion={{
+      latitude: loc.coords.latitude,
+      longitude: loc.coords.longitude,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    }}>
+      
+    <Polyline coordinates={getCurrentRoute()} strokeColor='#0cf' strokeWidth={5} lineDashPattern={[3, 3]} />
+    <Polyline coordinates={userRoute} strokeColor='#000' strokeWidth={5} />
+    </MapView>]
+    }
+    else{
+      return [
+      <MapView key={0} style={styles.mapStyle}
+          showsUserLocation
+          followsUserLocation={true}
+        initialRegion={{
+          latitude: 37.4351149,
+          longitude: -122.2003969,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}>
+          
+     <Polyline coordinates={getCurrentRoute()} strokeColor='#0cf' strokeWidth={5} lineDashPattern={[3, 3]} />
+     <Polyline coordinates={userRoute} strokeColor='#000' strokeWidth={5} />
+      </MapView>]
+    }
+  }
+
+
   useEffect(() => {
     (async () => {
       let lines = []
@@ -96,6 +130,7 @@ export default function HomeScreen(props) {
       }
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
+      
     })
     
     ();
@@ -148,25 +183,12 @@ export default function HomeScreen(props) {
     }
   }
   
-  
-
+let test = null;
 
   return (
     <View style={styles.container}>
       <View >
-      <MapView style={styles.mapStyle}
-      showsUserLocation
-      followsUserLocation
-    initialRegion={{
-      latitude: 37.435120,
-      longitude: -122.200420,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
-    }}>
-      
- <Polyline coordinates={getCurrentRoute()} strokeColor='#0cf' strokeWidth={5} lineDashPattern={[3, 3]} />
- <Polyline coordinates={userRoute} strokeColor='#000' strokeWidth={5} />
-  </MapView>
+      {getMap(location)}
 <Sliders position={location} onChange={handleRouteChange}/>
 
 {renderSwitch(trackingState)}

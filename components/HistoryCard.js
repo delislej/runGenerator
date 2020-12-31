@@ -7,33 +7,25 @@ import { decodePoly } from '../Utils/Route'
 
 
 export default function HistoryCard(props) {
-  
     return (
-
       <Card style={styles.card}>
 
-        
+ 
 <MapView style={styles.mapStyle}
       showsUserLocation
       followsUserLocation
     initialRegion={{
-      latitude: 37.435120,
+      latitude: decodePoly(props.line)[0].latitude,
       longitude: -122.200420,
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421,
-    }}>
+    }} ref={(ref) => { this.mapRef = ref }} onMapReady={() => {
+      this.mapRef.fitToCoordinates(decodePoly(props.line), { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: false })
+    }} pitchEnabled={false} rotateEnabled={false} scrollEnabled={false} zoomEnabled={false}>
 
               <Polyline
                 coordinates={decodePoly(props.line, false)}
                 strokeColor='#000' // fallback for when `strokeColors` is not supported by the map-provider
-                strokeColors={[
-                  '#7F0000',
-                  '#00000000', // no color, creates a "long" gradient between the previous and next coordinate
-                  '#B24112',
-                  '#E5845C',
-                  '#238C23',
-                  '#7F0000'
-                ]}
                 strokeWidth={6}
               />
             </MapView>

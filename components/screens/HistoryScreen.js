@@ -32,7 +32,7 @@ export default function HistoryScreen({navigation}) {
     }
     let temp = []
     for(let i = 0; i < arr.length; i++){
-      temp.push(<HistoryCard line={arr[i] } key={i} id={i} distance={0} test={cardButtonHandler}/>)
+      temp.push(<HistoryCard line={arr[i] } key={arr[i]} distance={0} test={cardButtonHandler}/>)
     }
     return temp
   }

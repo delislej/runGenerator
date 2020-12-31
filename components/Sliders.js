@@ -1,41 +1,26 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import React from 'react';
 import { StyleSheet, Text, View, Dimensions, Button } from 'react-native';
 import Slider from '@react-native-community/slider';
+import RangeSlider from 'react-native-range-slider-expo';
 import {getRoute} from '../Utils/Route'
 
 
 export default function Sliders(props) {
-  const [distance, setDistance] = useState(1);
-  const [tolerance, setTolerance] = useState(5);
+  const [min, setMin] = useState(0);
+  const [max, setMax] = useState(10);
+  
+
 
   let location = props.position
   return (
       <View>
-    <Text style={{ color: '#acacac' }}>Distance: {distance} mi</Text>
-          <Slider
-            minimumValue={1}
-            maximumValue={10}
-            minimumTrackTintColor='#1EB1FC'
-            maximumTractTintColor='#1EB1FC'
-            step={0.5}
-            value={1}
-            onValueChange={value => setDistance(value)}
-            style={styles.slider}
-            thumbTintColor='#1EB1FC'
-          />
-<Text style={{ color: '#acacac' }}>tolerance: {tolerance} %</Text>
-<Slider
-            minimumValue={5}
-            maximumValue={20}
-            minimumTrackTintColor='#1EB1FC'
-            maximumTractTintColor='#1EB1FC'
-            step={1}
-            value={5}
-            onValueChange={value => setTolerance(value)}
-            style={styles.slider}
-            thumbTintColor='#1EB1FC'
-          />
+        <Text style={{ color: '#000' }}>Distance</Text>
+                    <RangeSlider min={1} max={10}
+                         fromValueOnChange={value => setMin(value)}
+                         toValueOnChange={value => setMax(value)}
+                         initialFromValue={1} styleSize='small' showRangeLabels={false} step={.25}
+                    />
 
           <Button
             color='#001584'
@@ -43,24 +28,24 @@ export default function Sliders(props) {
             mode='contained'
             onPress={async () => {
               
-              let max = distance+distance*(tolerance/100)
-              let route = await getRoute( location.coords.longitude, location.coords.latitude, distance*1000, 20, Math.trunc(1 + Math.random() * (100000 - 1)))
+              
+              let route = await getRoute( location.coords.longitude, location.coords.latitude, min*1000, 20, Math.trunc(1 + Math.random() * (100000 - 1)))
               let saved = null;
               let savedDistance = Number.MAX_SAFE_INTEGER;
               for(let i = 0; i < 20; i++){
-                if(route.segments[0].distance <= max && route.segments[0].distance >= distance){
+                if(route.segments[0].distance <= max && route.segments[0].distance >= min){
                   saved = route
                   break
                 }
                 if(i == 0){
                   saved = route
                 }
-                else if(Math.abs(route.segments[0].distance - distance) < savedDistance && route.segments[0].distance >= distance)
+                else if(Math.abs(route.segments[0].distance - min) < savedDistance && route.segments[0].distance >= min)
                 {
                   saved = route
-                  savedDistance = Math.abs(distance - route.segments[0].distance)
+                  savedDistance = Math.abs(min - route.segments[0].distance)
                 }
-                route = await getRoute( location.coords.longitude, location.coords.latitude, distance*1000, 20, Math.trunc(1 + Math.random() * (100000 - 1)))
+                route = await getRoute( location.coords.longitude, location.coords.latitude, min*1000, 20, Math.trunc(1 + Math.random() * (100000 - 1)))
               }
               
               props.onChange(saved.geometry, saved.segments[0].distance)
