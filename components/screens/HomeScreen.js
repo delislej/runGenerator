@@ -156,17 +156,17 @@ export default function HomeScreen(props) {
   });
 
   let stoppedButtons = <TouchableOpacity onPress={() => {startLocationTracking()}} style={styles.startButtonContainer}>
-     <Ionicons name={"md-play"} size={10} color={'#fff'} />
+     <Ionicons name={"md-play"} size={20} color={'#fff'} />
     </TouchableOpacity>
   
   let pausedButtons = [<TouchableOpacity key={123}onPress={() => {startLocationTracking()}} style={styles.startButtonContainer}>
-    <Ionicons name={"md-play"} size={10} color={'#fff'} />
+    <Ionicons name={"md-play"} size={20} color={'#fff'} />
     </TouchableOpacity>,<TouchableOpacity key={456} onPress={() => {stopLocationTracking()}} style={styles.stopButtonContainer}>
     
-    <Ionicons name={"md-stop"} size={10} color={'#fff'} />
+    <Ionicons name={"md-stop"} size={20} color={'#fff'} />
     </TouchableOpacity>];
   let startedButtons = <TouchableOpacity onPress={() => {pauseLocationTracking()}} style={styles.pauseButtonContainer}>
-  <Ionicons name={"md-pause"} size={10} color={'#fff'} />
+  <Ionicons name={"md-pause"} size={20} color={'#fff'} />
   </TouchableOpacity>
   
 
@@ -186,8 +186,6 @@ export default function HomeScreen(props) {
 
   return (
     <View style={styles.container}>
-      
-      <View >
       {getMap(location)}
       <Text>Route length: {distance.toFixed(2)} mi</Text>
       <Text>Distance traveled: {distanceTravelled.toFixed(2)}</Text>
@@ -195,12 +193,11 @@ export default function HomeScreen(props) {
 <TouchableOpacity onPress={() => {saveRoute()}} style={styles.saveButtonContainer}>
     <Text style={styles.appButtonText}>Save Route</Text>
     </TouchableOpacity>
+      <View style={styles.trackingContainer}>
+      
 {renderSwitch(trackingState)}
 
-
-
-      
-      </View>
+</View>
       
     
     </View>
@@ -214,11 +211,25 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'stretch',
     justifyContent: 'center',
-    borderRadius: 10,
+    
   margin: 10,
   marginTop: 50,
+  },
+  trackingContainer: {
     
-  },mapStyle: {
+    
+    flex: 1,
+    justifyContent:"space-evenly",
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 20,
+    marginTop: 40,
+      padding: 10,
+    
+  },
+    
+    
+  mapStyle: {
     
     width: Dimensions.get('window').width-20,
     height: Dimensions.get('window').height/2,
@@ -238,8 +249,8 @@ const styles = StyleSheet.create({
     alignItems:'center',
     justifyContent:'center',
     borderRadius: 100,
-    width:50,
-    height:50
+    width:65,
+    height:65
   },
   saveButtonContainer: {
     elevation: 8,
@@ -268,8 +279,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     alignItems:'center',
     justifyContent:'center',
-    width:50,
-    height:50
+    width:65,
+    height:65
   },
   stopButtonContainer: {
     elevation: 8,
@@ -280,8 +291,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     alignItems:'center',
     justifyContent:'center',
-    width:50,
-    height:50
+    width:65,
+    height:65
   },
   appButtonText: {
     fontSize: 18,

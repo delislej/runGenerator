@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-import {ScrollView, Text, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
+import {ScrollView, Text, TouchableOpacity, View, StyleSheet, Dimensions} from 'react-native';
 import {Context} from '../../context/Store'
 import { useContext } from 'react';
 import HistoryCard from '../HistoryCard';
@@ -24,6 +24,14 @@ export default function HistoryScreen({navigation}) {
   }
   
 
+function clearHistoryButton() {
+if(state.routes.length > 0){
+  return <TouchableOpacity key="clear" onPress={() => {dispatch({type: 'CLEAR_ROUTES', payload: []});}} style={styles.appButtonContainer}>
+  <Text style={styles.appButtonText}>Clear History</Text>
+  </TouchableOpacity>
+}
+  
+}
   function makeCards() {
 
     let arr = state.routes;
@@ -34,17 +42,19 @@ export default function HistoryScreen({navigation}) {
     for(let i = 0; i < arr.length; i++){
       temp.push(<HistoryCard line={arr[i] } key={arr[i]} distance={0} test={cardButtonHandler}/>)
     }
-    temp.push(<TouchableOpacity onPress={() => {dispatch({type: 'CLEAR_ROUTES', payload: []});}} style={styles.appButtonContainer}>
-    <Text style={styles.appButtonText}>Clear History</Text>
-    </TouchableOpacity>)
+   
     return temp
   }
 
   return (
+    <View>
         <ScrollView style={styles.mapStyle}>
-    {makeCards()}
-    
+          {makeCards()}
         </ScrollView>
+        <View>
+          {clearHistoryButton()}
+        </View>
+      </View>
   );
 }
 
@@ -53,7 +63,7 @@ const styles = StyleSheet.create({
     
     
     width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height
+    height: Dimensions.get('window').height-60
   },
   card: {
     borderRadius: 8,
@@ -70,7 +80,7 @@ const styles = StyleSheet.create({
   appButtonContainer: {
     elevation: 8,
     backgroundColor: "#009688",
-    paddingVertical: 10,
+    paddingVertical: 13,
     paddingHorizontal: 12,
     width: Dimensions.get('window').width
   },
