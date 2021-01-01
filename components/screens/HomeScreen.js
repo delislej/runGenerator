@@ -2,8 +2,9 @@
 import React from 'react';
 import { useState, useEffect, useContext } from 'react';
 import * as Location from 'expo-location';
-import { StyleSheet, Text, View, Dimensions, Button,  ScrollView, TouchableOpacity} from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity} from 'react-native';
 import MapView, {Polyline, Marker} from 'react-native-maps';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Sliders from '../Sliders'
 import {calcDistance, decodePoly} from '../../Utils/Route'
 import {getHistory} from '../../Utils/dataManagement'
@@ -155,16 +156,17 @@ export default function HomeScreen(props) {
   });
 
   let stoppedButtons = <TouchableOpacity onPress={() => {startLocationTracking()}} style={styles.startButtonContainer}>
-    <Text style={styles.appButtonText}>start tracking</Text>
+     <Ionicons name={"md-play"} size={10} color={'#fff'} />
     </TouchableOpacity>
   
   let pausedButtons = [<TouchableOpacity key={123}onPress={() => {startLocationTracking()}} style={styles.startButtonContainer}>
-    <Text style={styles.appButtonText}>Resume tracking</Text>
+    <Ionicons name={"md-play"} size={10} color={'#fff'} />
     </TouchableOpacity>,<TouchableOpacity key={456} onPress={() => {stopLocationTracking()}} style={styles.stopButtonContainer}>
-    <Text style={styles.appButtonText}>Stop Tracking</Text>
+    
+    <Ionicons name={"md-stop"} size={10} color={'#fff'} />
     </TouchableOpacity>];
   let startedButtons = <TouchableOpacity onPress={() => {pauseLocationTracking()}} style={styles.pauseButtonContainer}>
-  <Text style={styles.appButtonText}>Pause Tracking</Text>
+  <Ionicons name={"md-pause"} size={10} color={'#fff'} />
   </TouchableOpacity>
   
 
@@ -233,7 +235,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    width: Dimensions.get('window').width-20
+    alignItems:'center',
+    justifyContent:'center',
+    borderRadius: 100,
+    width:50,
+    height:50
   },
   saveButtonContainer: {
     elevation: 8,
@@ -256,20 +262,26 @@ const styles = StyleSheet.create({
   startButtonContainer: {
     elevation: 8,
     backgroundColor: "#00cc88",
-    borderRadius: 10,
+    borderRadius: 100,
     marginTop: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    width: Dimensions.get('window').width-20
+    alignItems:'center',
+    justifyContent:'center',
+    width:50,
+    height:50
   },
   stopButtonContainer: {
     elevation: 8,
     backgroundColor: "#cc0000",
-    borderRadius: 10,
+    borderRadius: 100,
     marginTop: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    width: Dimensions.get('window').width-20
+    alignItems:'center',
+    justifyContent:'center',
+    width:50,
+    height:50
   },
   appButtonText: {
     fontSize: 18,
