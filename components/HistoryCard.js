@@ -2,30 +2,36 @@ import React from 'react'
 import { Card } from 'react-native-paper'
 import { StyleSheet, Text, Dimensions, TouchableOpacity } from 'react-native'
 import MapView, { Polyline } from 'react-native-maps'
-import { decodePoly } from '../Utils/Route'
+import { decodePoly, getRegionForCoordinates } from '../Utils/Route'
 
 
 
 export default function HistoryCard(props) {
-    return (
+    
+  
+  
+  return (
+      
       <Card style={styles.card}>
 
  
 <MapView style={styles.mapStyle}
       showsUserLocation
       followsUserLocation
-    initialRegion={{
-      latitude: decodePoly(props.line)[0].latitude,
-      longitude: -122.200420,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
-    }} ref={(ref) => { this.mapRef = ref }} onMapReady={() => {
-      this.mapRef.fitToCoordinates(decodePoly(props.line), { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: false })
-    }} pitchEnabled={false} rotateEnabled={false} scrollEnabled={false} zoomEnabled={false}>
+    initialRegion={getRegionForCoordinates(decodePoly(props.line))}
+    pitchEnabled={false} rotateEnabled={false} scrollEnabled={false} zoomEnabled={false}>
 
               <Polyline
                 coordinates={decodePoly(props.line, false)}
                 strokeColor='#000' // fallback for when `strokeColors` is not supported by the map-provider
+                strokeColors={[
+                  '#7F0000',
+                  '#00000000', // no color, creates a "long" gradient between the previous and next coordinate
+                  '#B24112',
+                  '#E5845C',
+                  '#238C23',
+                  '#7F0000'
+                ]}
                 strokeWidth={6}
               />
             </MapView>
@@ -38,6 +44,7 @@ export default function HistoryCard(props) {
             <TouchableOpacity onPress={()=>{props.test('delete', props.id, props.line)}} style={styles.appButtonContainer}>
             <Text style={styles.appButtonText}>delete</Text>
             </TouchableOpacity>
+
             
       </Card>
 

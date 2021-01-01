@@ -2,7 +2,7 @@
 import React from 'react';
 import { useState, useEffect, useContext } from 'react';
 import * as Location from 'expo-location';
-import { StyleSheet, Text, View, Dimensions, Button,  ScrollView} from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Button,  ScrollView, TouchableOpacity} from 'react-native';
 import MapView, {Polyline, Marker} from 'react-native-maps';
 import Sliders from '../Sliders'
 import {calcDistance, decodePoly} from '../../Utils/Route'
@@ -50,6 +50,7 @@ export default function HomeScreen(props) {
   }
 
   const startLocationTracking = async () => {
+    setDistanceTravelled(0.0)
     await Location.startLocationUpdatesAsync(LOCATION_TRACKING,{
       accuracy: Location.Accuracy.BestForNavigation,
       timeInterval: 500,
@@ -99,37 +100,25 @@ export default function HomeScreen(props) {
     </MapView>]
     }
     else{
-      return [
-      <MapView key={0} style={styles.mapStyle}
-          showsUserLocation
-          followsUserLocation={true}
-        initialRegion={{
-          latitude: 37.4351149,
-          longitude: -122.2003969,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}>
-          
-     <Polyline coordinates={getCurrentRoute()} strokeColor='#0cf' strokeWidth={5} lineDashPattern={[3, 3]} />
-     <Polyline coordinates={userRoute} strokeColor='#000' strokeWidth={5} />
-      </MapView>]
+      return <Text key={6651864}>loading!</Text>
     }
   }
 
 
   useEffect(() => {
     (async () => {
+      let { status } = await Location.requestPermissionsAsync();
+      Permissions.askAsync(Permissions.LOCATION)
+        if (status !== 'granted') {
+          setErrorMsg('Permission to access location was denied');
+          return;
+        }
+        let location = await Location.getCurrentPositionAsync({});
+        setLocation(location);
       let lines = []
       lines = await getHistory()
       dispatch({type: 'SET_ROUTES', payload: lines});
-      let { status } = await Location.requestPermissionsAsync();
-    Permissions.askAsync(Permissions.LOCATION)
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        return;
-      }
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
+     
       
     })
     
@@ -165,9 +154,18 @@ export default function HomeScreen(props) {
     }
   });
 
-  let stoppedButtons = <Button title="Start tracking" onPress={startLocationTracking} />
-  let pausedButtons = [<Button title="Resume tracking" onPress={startLocationTracking} key={0}/>,<Button title="Stop tracking" onPress={stopLocationTracking} key={1}/>];
-  let startedButtons = <Button title="pause tracking" onPress={pauseLocationTracking} />
+  let stoppedButtons = <TouchableOpacity onPress={() => {startLocationTracking()}} style={styles.startButtonContainer}>
+    <Text style={styles.appButtonText}>start tracking</Text>
+    </TouchableOpacity>
+  
+  let pausedButtons = [<TouchableOpacity key={123}onPress={() => {startLocationTracking()}} style={styles.startButtonContainer}>
+    <Text style={styles.appButtonText}>Resume tracking</Text>
+    </TouchableOpacity>,<TouchableOpacity key={456} onPress={() => {stopLocationTracking()}} style={styles.stopButtonContainer}>
+    <Text style={styles.appButtonText}>Stop Tracking</Text>
+    </TouchableOpacity>];
+  let startedButtons = <TouchableOpacity onPress={() => {pauseLocationTracking()}} style={styles.pauseButtonContainer}>
+  <Text style={styles.appButtonText}>Pause Tracking</Text>
+  </TouchableOpacity>
   
 
   function renderSwitch(trackingState) {
@@ -183,26 +181,28 @@ export default function HomeScreen(props) {
     }
   }
   
-let test = null;
 
   return (
     <View style={styles.container}>
+      
       <View >
       {getMap(location)}
-<Sliders position={location} onChange={handleRouteChange}/>
-
-{renderSwitch(trackingState)}
-<Button title="Save Route" onPress={saveRoute} />
-<Button
-        title="Clear History"
-        onPress={() => {dispatch({type: 'CLEAR_ROUTES', payload: []});}}
-      />
-      </View>
       <Text>Route length: {distance.toFixed(2)} mi</Text>
-      <Text>Current Accuracy: {accuracy.toFixed(1)}</Text>
       <Text>Distance traveled: {distanceTravelled.toFixed(2)}</Text>
+<Sliders position={location} onChange={handleRouteChange}/>
+<TouchableOpacity onPress={() => {saveRoute()}} style={styles.saveButtonContainer}>
+    <Text style={styles.appButtonText}>Save Route</Text>
+    </TouchableOpacity>
+{renderSwitch(trackingState)}
+
+
+
+      
+      </View>
+      
     
     </View>
+    
   );
 }
 
@@ -210,13 +210,14 @@ let test = null;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
     alignItems: 'stretch',
     justifyContent: 'center',
-    
+    borderRadius: 10,
   margin: 10,
+  marginTop: 50,
     
   },mapStyle: {
+    
     width: Dimensions.get('window').width-20,
     height: Dimensions.get('window').height/2,
     
@@ -224,6 +225,58 @@ const styles = StyleSheet.create({
   interfaceStyle: {
     width: Dimensions.get('window').width/3,
     
+  },
+  pauseButtonContainer: {
+    elevation: 8,
+    backgroundColor: "#dddd00",
+    borderRadius: 10,
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    width: Dimensions.get('window').width-20
+  },
+  saveButtonContainer: {
+    elevation: 8,
+    backgroundColor: "#009688",
+    borderRadius: 10,
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    width: Dimensions.get('window').width-20
+  },
+  findButtonContainer: {
+    elevation: 8,
+    backgroundColor: "#009688",
+    borderRadius: 10,
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    width: Dimensions.get('window').width-20
+  },
+  startButtonContainer: {
+    elevation: 8,
+    backgroundColor: "#00cc88",
+    borderRadius: 10,
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    width: Dimensions.get('window').width-20
+  },
+  stopButtonContainer: {
+    elevation: 8,
+    backgroundColor: "#cc0000",
+    borderRadius: 10,
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    width: Dimensions.get('window').width-20
+  },
+  appButtonText: {
+    fontSize: 18,
+    color: "#000",
+    fontWeight: "bold",
+    textAlign: 'center',
+    textTransform: "uppercase"
   }
 });
 
