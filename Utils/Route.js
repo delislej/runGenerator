@@ -81,6 +81,15 @@ export function calcDistance (newLatLng, oldLatLng) {
   return haversine(oldLatLng, newLatLng, { unit: 'mile' }) || 0
 };
 
+export function calcRouteDistance(route){
+  let latlongs = decodePoly(route);
+  let total = 0;
+  for(let i = 1; i < latlongs.length; i++){
+    total+=calcDistance(latlongs[i],latlongs[i-1]);
+  }
+  return total;
+}
+
 //get region from array of longlats
 export function getRegionForCoordinates(points) {
   // points should be an array of { latitude: X, longitude: Y }

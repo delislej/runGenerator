@@ -4,7 +4,8 @@ import Reducer from './Reducer'
 
 const initialState = {
     routes: [],
-    currentRoute: ''
+    currentRoute: '',
+    currentRouteDistance: 0
 };
 
 const Store = ({children}) => {

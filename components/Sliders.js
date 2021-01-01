@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions, Button, TouchableOpacity } from 'react-native';
-import Slider from '@react-native-community/slider';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity } from 'react-native';
 import RangeSlider from 'react-native-range-slider-expo';
 import {getRoute} from '../Utils/Route'
 
@@ -43,7 +42,7 @@ export default function Sliders(props) {
                 route = await getRoute( location.coords.longitude, location.coords.latitude, min*1000, 20, Math.trunc(1 + Math.random() * (100000 - 1)))
               }
               
-              props.onChange(saved.geometry, saved.segments[0].distance)
+              props.onChange(saved.geometry)
             }} style={styles.appButtonContainer}>
   <Text style={styles.appButtonText}>Find Route</Text>
   </TouchableOpacity>

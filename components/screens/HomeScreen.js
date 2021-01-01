@@ -6,7 +6,7 @@ import { StyleSheet, Text, View, Dimensions, TouchableOpacity} from 'react-nativ
 import MapView, {Polyline, Marker} from 'react-native-maps';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Sliders from '../Sliders'
-import {calcDistance, decodePoly} from '../../Utils/Route'
+import {calcDistance, calcRouteDistance, decodePoly} from '../../Utils/Route'
 import {getHistory} from '../../Utils/dataManagement'
 import * as Permissions from 'expo-permissions';
 import * as TaskManager from 'expo-task-manager';
@@ -28,9 +28,8 @@ export default function HomeScreen(props) {
   const [state, dispatch] = useContext(Context);
   
 
-  function handleRouteChange(newRoute, routeDistance) {
+  function handleRouteChange(newRoute) {
     dispatch({type: 'SELECT_ROUTE', payload: newRoute});
-    setDistance(routeDistance);
   }
 
   function saveRoute() {
@@ -187,7 +186,7 @@ export default function HomeScreen(props) {
   return (
     <View style={styles.container}>
       {getMap(location)}
-      <Text>Route length: {distance.toFixed(2)} mi</Text>
+      <Text>Route length: {state.currentRouteDistance.toFixed(2)} mi</Text>
       <Text>Distance traveled: {distanceTravelled.toFixed(2)}</Text>
 <Sliders position={location} onChange={handleRouteChange}/>
 <TouchableOpacity onPress={() => {saveRoute()}} style={styles.saveButtonContainer}>
@@ -209,6 +208,7 @@ export default function HomeScreen(props) {
 
 const styles = StyleSheet.create({
   container: {
+    height: Dimensions.get('window').height*(2/3),
     alignItems: 'stretch',
     justifyContent: 'center',
     
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   mapStyle: {
     
     width: Dimensions.get('window').width-20,
-    height: Dimensions.get('window').height/2,
+    height: Dimensions.get('window').height/3,
     
   },
   interfaceStyle: {

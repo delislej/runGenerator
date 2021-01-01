@@ -1,4 +1,5 @@
 import { storeHistory } from "../Utils/dataManagement";
+import {calcRouteDistance} from '../Utils/Route'
 
 const Reducer = (state, action) => {
     switch (action.type) {
@@ -36,7 +37,8 @@ const Reducer = (state, action) => {
             //console.log("selecting route: " + action.payload)
                 return {
                     ...state,
-                    currentRoute: action.payload
+                    currentRoute: action.payload,
+                    currentRouteDistance: calcRouteDistance(action.payload)
                     };
         
         default:
