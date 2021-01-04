@@ -61,9 +61,6 @@ export default function HomeScreen(props) {
           notificationColor: '#0EE',
         },
     });
-    const hasStarted = await Location.hasStartedLocationUpdatesAsync(
-      LOCATION_TRACKING
-    );
     setTrackingState('started')
   };
 
@@ -85,7 +82,7 @@ export default function HomeScreen(props) {
 
   function getMap(loc) {
     if(loc !== null){
-      return [<MapView key={0} style={styles.mapStyle}
+      return <MapView key={0} style={styles.mapStyle}
       showsUserLocation
       followsUserLocation={true}
     initialRegion={{
@@ -97,7 +94,7 @@ export default function HomeScreen(props) {
       
     <Polyline coordinates={getCurrentRoute()} strokeColor='#0cf' strokeWidth={5} lineDashPattern={[3, 3]} />
     <Polyline coordinates={userRoute} strokeColor='#000' strokeWidth={5} />
-    </MapView>]
+    </MapView>
     }
     else{
       return <Text key={6651864}>loading!</Text>

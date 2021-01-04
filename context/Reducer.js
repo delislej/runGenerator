@@ -27,7 +27,7 @@ const Reducer = (state, action) => {
                 };
         case 'CLEAR_ROUTES':
             storeHistory([])
-            console.log("cleared routes")
+            //console.log("cleared routes")
                 return {
                     ...state,
                     routes: action.payload
