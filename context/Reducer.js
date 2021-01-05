@@ -34,7 +34,6 @@ const Reducer = (state, action) => {
                 };
 
         case 'SELECT_ROUTE':
-            //console.log("selecting route: " + action.payload)
                 return {
                     ...state,
                     currentRoute: action.payload,

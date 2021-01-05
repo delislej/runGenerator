@@ -37,11 +37,11 @@ export default function HistoryCard(props) {
             </MapView>
             
 
-            <TouchableOpacity onPress={()=>{props.test('select', props.id, props.line)}} style={styles.appButtonContainer}>
+            <TouchableOpacity onPress={()=>{props.test('select', props.line)}} style={styles.appButtonContainer}>
             <Text style={styles.appButtonText}>select</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={()=>{props.test('delete', props.id, props.line)}} style={styles.appButtonContainer}>
+            <TouchableOpacity onPress={()=>{props.test('delete', props.line)}} style={styles.appButtonContainer}>
             <Text style={styles.appButtonText}>delete</Text>
             </TouchableOpacity>
 

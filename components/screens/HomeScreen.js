@@ -6,7 +6,7 @@ import { StyleSheet, Text, View, Dimensions, TouchableOpacity} from 'react-nativ
 import MapView, {Polyline, Marker} from 'react-native-maps';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Sliders from '../Sliders'
-import {calcDistance, calcRouteDistance, decodePoly} from '../../Utils/Route'
+import {calcDistance, calcRouteDistance, decodePoly, getRegionForCoordinates} from '../../Utils/Route'
 import {getHistory} from '../../Utils/dataManagement'
 import * as Permissions from 'expo-permissions';
 import * as TaskManager from 'expo-task-manager';
@@ -26,6 +26,7 @@ export default function HomeScreen(props) {
   const [distance, setDistance] = useState(0);
   const [trackingState, setTrackingState] = useState('stopped')
   const [state, dispatch] = useContext(Context);
+  const mapRef = React.useRef();
   
 
   function handleRouteChange(newRoute) {
@@ -40,7 +41,7 @@ export default function HomeScreen(props) {
   }
 
 
-  function getCurrentRoute() {
+  function getCurrentRoute(mapRef) {
     if(state.currentRoute === ''){
       return [];
     }
@@ -82,15 +83,22 @@ export default function HomeScreen(props) {
 
   function getMap(loc) {
     if(loc !== null){
-      return <MapView key={0} style={styles.mapStyle}
+      let initRegion={
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      }
+      if(getCurrentRoute().length > 1){
+        let curRoute = getCurrentRoute();
+        curRoute.push({ele: 0, latitude: loc.coords.latitude, longitude: loc.coords.longitude})
+        initRegion = getRegionForCoordinates(curRoute)
+        mapRef.current.animateToRegion(initRegion)
+      }
+      return <MapView key={0} style={styles.mapStyle}  ref={mapRef}
       showsUserLocation
       followsUserLocation={true}
-    initialRegion={{
-      latitude: loc.coords.latitude,
-      longitude: loc.coords.longitude,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
-    }}>
+    initialRegion={initRegion}>
       
     <Polyline coordinates={getCurrentRoute()} strokeColor='#0cf' strokeWidth={5} lineDashPattern={[3, 3]} />
     <Polyline coordinates={userRoute} strokeColor='#000' strokeWidth={5} />
@@ -115,8 +123,6 @@ export default function HomeScreen(props) {
       let lines = []
       lines = await getHistory()
       dispatch({type: 'SET_ROUTES', payload: lines});
-     
-      
     })
     
     ();

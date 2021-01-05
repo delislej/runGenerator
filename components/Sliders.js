@@ -23,7 +23,7 @@ export default function Sliders(props) {
           <TouchableOpacity onPress={async () => {
               
               
-              let route = await getRoute( location.coords.longitude, location.coords.latitude, min*1000, 20, Math.trunc(1 + Math.random() * (100000 - 1)))
+              let route = await getRoute( location.coords.longitude, location.coords.latitude, min*1000, 7, Math.trunc(1 + Math.random() * (100000 - 1)))
               let saved = null;
               let savedDistance = Number.MAX_SAFE_INTEGER;
               for(let i = 0; i < 20; i++){
@@ -39,7 +39,7 @@ export default function Sliders(props) {
                   saved = route
                   savedDistance = Math.abs(min - route.segments[0].distance)
                 }
-                route = await getRoute( location.coords.longitude, location.coords.latitude, min*1000, 20, Math.trunc(1 + Math.random() * (100000 - 1)))
+                route = await getRoute( location.coords.longitude, location.coords.latitude, min*1000, 7, Math.trunc(1 + Math.random() * (100000 - 1)))
               }
               
               props.onChange(saved.geometry)

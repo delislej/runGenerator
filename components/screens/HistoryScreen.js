@@ -8,12 +8,14 @@ import HistoryCard from '../HistoryCard';
 
 
 
+
 export default function HistoryScreen({navigation}) {
   const [state, dispatch] = useContext(Context);
   const [trash,setTrash] = useState([])
   const [modalVisible,setModalVisible] = useState(false)
   const [buttonsVisible,setButtonsVisible] = useState(true)
-  async function cardButtonHandler(task, id, line){
+  async function cardButtonHandler(task,line){
+    console.log(line)
     switch(task) {
       case 'delete':
         let temp = trash;
@@ -23,7 +25,7 @@ export default function HistoryScreen({navigation}) {
         break
       case 'select':
         dispatch({type: 'SELECT_ROUTE', payload: line});
-        navigation.navigate('home', {route: line})
+        navigation.navigate('home')
         break
         
     }
@@ -40,9 +42,9 @@ export default function HistoryScreen({navigation}) {
 
 function clearHistoryButton() {
 if(state.routes.length > 0 && buttonsVisible){
-  let styl = trash.length > 0 ? styles.appButtonContainer : styles.singleButtonContainer
+  let styl = trash.length > 0 ? styles.appButtonContainer : styles.singleClearButtonContainer
     
-      return <TouchableOpacity key="clear" onPress={() => {/*dispatch({type: 'CLEAR_ROUTES', payload: []});*/ setModalVisible(true); setButtonsVisible(false)}} style={styl}>
+      return <TouchableOpacity key="clear" onPress={() => {setModalVisible(true); setButtonsVisible(false)}} style={styl}>
       <Text style={styles.appButtonText}>Clear History</Text>
       </TouchableOpacity>
   
@@ -52,7 +54,7 @@ if(state.routes.length > 0 && buttonsVisible){
 
   function undoButton() {
     if(trash.length >= 1 && buttonsVisible){
-      let styl = state.routes.length > 0 ? styles.appButtonContainer : styles.singleButtonContainer
+      let styl = state.routes.length > 0 ? styles.appButtonContainer : styles.appButtonContainer2
         return <TouchableOpacity key="undo" onPress={() => {undoDelete()}} style={styl}>
       <Text style={styles.appButtonText}>Undo</Text>
       </TouchableOpacity>
@@ -64,8 +66,12 @@ if(state.routes.length > 0 && buttonsVisible){
   function makeCards() {
 
     let arr = state.routes;
-    if(arr.length < 1){
+    if(arr.length < 1 ){
+      if(trash < 1){
       return <View style={{ justifyContent: 'center', marginTop: Dimensions.get('window').height*0.50-40}}><Text style={styles.noHistoryText}>No History</Text><Text style={styles.noHistoryText}>Save some routes</Text></View>
+    }else{
+        return <View style={{ justifyContent: 'center', marginTop: Dimensions.get('window').height*0.50-40}}><Text style={styles.noHistoryText}>Routes still in trash</Text><Text style={styles.noHistoryText}>Closing will delete routes in trash</Text></View>
+  }
     }
     let temp = []
     for(let i = 0; i < arr.length; i++){
@@ -86,13 +92,13 @@ if(state.routes.length > 0 && buttonsVisible){
             setModalVisible(false); setButtonsVisible(true)
           }}>
           <View style={styles.modalView}>
-          <TouchableOpacity key="cancel" onPress={() => { setModalVisible(false); setButtonsVisible(true)}} style={styles.modalCancelButtonContainer}>
-      <Text style={styles.appButtonText}>Cancel</Text>
-      </TouchableOpacity>
+            <TouchableOpacity key="cancel" onPress={() => { setModalVisible(false); setButtonsVisible(true)}} style={styles.modalCancelButtonContainer}>
+              <Text style={styles.appButtonText}>Cancel</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity key="clear" onPress={() => {dispatch({type: 'CLEAR_ROUTES', payload: []}); setModalVisible(false); setButtonsVisible(true)}} style={styles.modalClearButtonContainer}>
-      <Text style={styles.appButtonText}>Clear History</Text>
-      </TouchableOpacity>
+                    <TouchableOpacity key="clear" onPress={() => {dispatch({type: 'CLEAR_ROUTES', payload: []}); setModalVisible(false); setButtonsVisible(true); setTrash([])}} style={styles.modalClearButtonContainer}>
+              <Text style={styles.appButtonText}>Clear History</Text>
+            </TouchableOpacity>
           </View>
         </Modal>
         
@@ -100,13 +106,11 @@ if(state.routes.length > 0 && buttonsVisible){
           {makeCards()}
           
         
-        <View style={{ flexDirection:"row" }}>
-        {undoButton()}
-        {clearHistoryButton()}
-         
-          
-        </View>
-      </View>
+          <View style={{ flexDirection:"row" }}>
+          {undoButton()}
+          {clearHistoryButton()}
+          </View>
+     </View>
   );
 }
 
@@ -133,15 +137,31 @@ const styles = StyleSheet.create({
     elevation: 8,
     backgroundColor: "#009688",
     paddingVertical: 13,
-    paddingHorizontal: 12,
+    marginRight:5,
     width: Dimensions.get('window').width/2
   },
-  singleButtonContainer: {
+  appButtonContainer2: {
     elevation: 8,
     backgroundColor: "#009688",
     paddingVertical: 13,
-    paddingHorizontal: 12,
-    width: Dimensions.get('window').width
+    marginRight:5,
+    width: Dimensions.get('window').width,
+    top: Dimensions.get('window').height*.35
+    },
+  singleClearButtonContainer: {
+    elevation: 8,
+    backgroundColor: "#009688",
+    paddingVertical: 13,
+    paddingHorizontal: 10,
+    width: Dimensions.get('window').width,
+    
+  },
+  singleUndoContainer: {
+    elevation: 8,
+    backgroundColor: "#009688",
+    paddingVertical: 13,
+    paddingHorizontal: 10,
+    width: Dimensions.get('window').width,
   },
   appButtonText: {
     fontSize: 18,
@@ -160,10 +180,9 @@ const styles = StyleSheet.create({
   modalView: {
     backgroundColor: 'white',
     justifyContent: 'center',
-    width: Dimensions.get('window').width*.8,
-    height: Dimensions.get('window').height*0.25,
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
     alignSelf: 'center',
-    top: Dimensions.get('window').height*0.15,
     borderRadius: Dimensions.get('window').height*0.03,
     alignItems: 'center'
   },
@@ -172,6 +191,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#cc0000",
     paddingVertical: 13,
     paddingHorizontal: 12,
+    marginTop:10,
     borderRadius: 10,
     width: Dimensions.get('window').width/2
   },
@@ -179,6 +199,7 @@ const styles = StyleSheet.create({
     elevation: 8,
     backgroundColor: "#009688",
     paddingVertical: 13,
+    
     paddingHorizontal: 12,
     borderRadius: 10,
     width: Dimensions.get('window').width/2
