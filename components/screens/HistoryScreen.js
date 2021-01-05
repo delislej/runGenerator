@@ -15,7 +15,6 @@ export default function HistoryScreen({navigation}) {
   const [modalVisible,setModalVisible] = useState(false)
   const [buttonsVisible,setButtonsVisible] = useState(true)
   async function cardButtonHandler(task,line){
-    console.log(line)
     switch(task) {
       case 'delete':
         let temp = trash;
